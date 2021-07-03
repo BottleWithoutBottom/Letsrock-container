@@ -1,0 +1,19 @@
+{
+  "name": "letsrock/container",
+  "license": "proprietary",
+  "minimum-stability": "alpha",
+  "authors": [
+    {
+      "name": "Leonid Titov",
+      "email": "shredder139@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.3.0",
+    "letsrock/singleton": "1.*",
+    "php-di/php-di": "^6.3"
+  },
+  "autoload": {
+    "classmap": ["src"]
+  }
+}
