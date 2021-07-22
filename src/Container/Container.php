@@ -85,9 +85,16 @@ class Container
         try {
             $reflectionClass = new \ReflectionClass($class);
             $reflectionConstructor = $reflectionClass->getConstructor();
-            $relfectionParams = $reflectionConstructor->getParameters();
-            $params = $this->resolveArguments($relfectionParams);
-            return $this->instance->call([$reflectionClass, $reflectionConstructor->getName()], $params);
+            if (!empty($reflectionConstructor)) {
+                $relfectionParams = $reflectionConstructor->getParameters();
+                $params = $this->resolveArguments($relfectionParams);
+                $instance = $this->instance->call([$reflectionClass, $reflectionConstructor->getName()], $params);
+            } else {
+                $instance = new $class();
+            }
+
+            return $instance;
+
         } catch (\ReflectionException $e) {
             die($e->getMessage());
         }
