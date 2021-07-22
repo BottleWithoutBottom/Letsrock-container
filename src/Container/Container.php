@@ -7,6 +7,7 @@ use Bitrock\Models\Singleton;
 class Container
 {
     protected $builder;
+    protected $instance;
     protected $config = [];
 
     public function __construct()
@@ -19,9 +20,9 @@ class Container
      * @param array $params
      * @return array
      */
-    public function resolveArguments(array $methodParams, array $params): array
+    public function resolveArguments(array $methodParams, array $params = []): array
     {
-        if (empty($methodParams) && empty($params)) return [];
+        if (empty($methodParams)) return [];
         $containerParams = [];
         foreach ($methodParams as $methodParam) {
             $paramType = $methodParam->getType();
@@ -34,7 +35,7 @@ class Container
                     if ($this->checkSingletonByClassName($paramNamespace)) {
                         $containerParams[] = $paramNamespace::getInstance();
                     } else {
-                        $containerParams[] = new $paramNamespace();
+                        $containerParams[] = $this->resolveConstructor($paramNamespace);
                     }
                 } catch (\ReflectionException $e) {
                     die($e->getMessage());
@@ -56,14 +57,14 @@ class Container
         $class = $controllerArray[0];
         $method = $controllerArray[1];
         $this->builder->addDefinitions($this->getConfig());
-        $instance = $this->builder->build();
+        $this->instance = $this->builder->build();
 
         try {
             $reflectionClass = new \ReflectionClass($class);
             $currentMethod = $reflectionClass->getMethod($method);
             $currentMethodParams = $currentMethod->getParameters();
             $params = $this->resolveArguments($currentMethodParams, $args);
-            return $instance->call([$class, $method], $params);
+            return $this->instance->call([$class, $method], $params);
         } catch(\ReflectionException $e) {
             die($e->getMessage());
         }
@@ -75,6 +76,21 @@ class Container
 
         $reflection = new \ReflectionClass($className);
         return $reflection->isSubclassOf(Singleton::class);
+    }
+
+    private function resolveConstructor($class)
+    {
+        if (!$this->instance) return false;
+
+        try {
+            $reflectionClass = new \ReflectionClass($class);
+            $reflectionConstructor = $reflectionClass->getConstructor();
+            $relfectionParams = $reflectionConstructor->getParameters();
+            $params = $this->resolveArguments($relfectionParams);
+            return $this->instance->call([$reflectionClass, $reflectionConstructor->getName()], $params);
+        } catch (\ReflectionException $e) {
+            die($e->getMessage());
+        }
     }
 
     public function getConfig()
