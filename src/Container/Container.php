@@ -89,6 +89,9 @@ class Container
                 $relfectionParams = $reflectionConstructor->getParameters();
                 $params = $this->resolveArguments($relfectionParams);
                 $instance = $this->instance->call([$reflectionClass, $reflectionConstructor->getName()], $params);
+                if (empty($instance)) {
+                    $instance = new $class();
+                }
             } else {
                 $instance = new $class();
             }
