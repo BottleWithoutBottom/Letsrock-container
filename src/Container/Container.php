@@ -2,17 +2,20 @@
 
 namespace Bitrock\Container;
 use \DI\ContainerBuilder;
+use \DI\Container as DIContainer;
 use Bitrock\Models\Singleton;
 
 class Container
 {
     protected $builder;
+    protected $container;
     protected $instance;
     protected $config = [];
 
     public function __construct()
     {
         $this->builder = new ContainerBuilder();
+        $this->container = new DIContainer();
     }
 
     /** Метод достает параметры из метода и аргументы, и превращает их в единый массив
@@ -88,10 +91,7 @@ class Container
             if (!empty($reflectionConstructor)) {
                 $relfectionParams = $reflectionConstructor->getParameters();
                 $params = $this->resolveArguments($relfectionParams);
-                $instance = $this->instance->call([$reflectionClass, $reflectionConstructor->getName()], $params);
-                if (empty($instance)) {
-                    $instance = new $class();
-                }
+                $instance = $this->container->get($class);
             } else {
                 $instance = new $class();
             }
