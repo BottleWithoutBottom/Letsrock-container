@@ -40,7 +40,7 @@ class Container
                     } else {
                         $containerParams[] = $this->resolveConstructor($paramNamespace);
                     }
-                } catch (\ReflectionException $e) {
+                } catch (\Exception $e) {
                     throw $e;
                 }
             }
@@ -68,7 +68,7 @@ class Container
             $currentMethodParams = $currentMethod->getParameters();
             $params = $this->resolveArguments($currentMethodParams, $args);
             return $this->instance->call([$class, $method], $params);
-        } catch(\ReflectionException $e) {
+        } catch(\Exception $e) {
             throw $e;
         }
     }
@@ -98,7 +98,7 @@ class Container
 
             return $instance;
 
-        } catch (\ReflectionException $e) {
+        } catch (\Exception $e) {
             throw $e;
         }
     }
